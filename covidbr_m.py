@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import os
 
@@ -18,26 +17,29 @@ class F():
     def __matmul__(self, other):
         return self.value * other
 
+    def __radd__(self, other):
+        self.__add__(self, other)
+
 
 #Dados experimentais
 alfa = 8.414499908
 beta = 0.1969820003
 gama = -15.31551146
-I0 = 121
-mort = 2/100 #livre para variar
+mort = 1.305/100 #livre para variar
 R0 = 2.79 #livre para variar
 S0 = 210000000
-epsilon = (alfa*(R0 -1))/(I0 * mort) #Fator de correção do número de casos documentados no dia 0
 
 #Constantes
+M0 = alfa + gama
 kc = (beta * R0)/(S0*(R0 - 1))
-fat = (alfa * beta)/(epsilon*I0)
-kr = kc*S0 - beta - fat
+fat = mort * (beta/(R0 - 1))
+kr = (1 - mort) * (beta/(R0 - 1))
+I0 = alfa*beta/fat
 
 #Estado Inicial
-I = F(I0*epsilon)
-R = F(-842.9092681)
-M = F(-6.901011552E+00)
+I = F(I0)
+R = F(((1-mort)/mort) * M0)
+M = F(M0)
 S = F(S0 - I.value - R.value - M.value)
 
 #Operador diferencial com relação ao tempo
@@ -53,7 +55,7 @@ def d_dt(f):
         df = fat*I.value
     return df
 
-sufixo = "_R2-79_mort0-02"
+sufixo = "_R2-79_mort0-01305"
 step_division = 100000
 dt = 1/step_division
 table = []
@@ -88,5 +90,6 @@ while I.value > 1:                                                              
         for f in S, I, R, M:
             f.value = new[f]
 
+#
 data = pd.DataFrame(table, index=list(range(d+1)), columns=list("SIRM"))
 data.to_csv(os.getcwd() + "\\output" + sufixo + ".csv")
