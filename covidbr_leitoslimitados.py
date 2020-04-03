@@ -62,7 +62,7 @@ def d_dt(f):
 
 sufixo = "_R{}_mort{}_{}leitos".format(*["{:.2f}".format(n).replace(".", "-") for n in (R0, 100*mort)],total_de_leitos)
 total_de_mortos_sem_leito = 0
-step_division = 500000
+step_division = 10000000
 dt = 1/step_division
 table = []
 dias = 15
@@ -88,6 +88,7 @@ while I.value > 1:                                                              
 
     R_ant = R.value
 
+    #Implementação do algoritmo de Euler
     for i in range(0, step_division):
         #Utilizando as diferenciais para obter novos valores das funções
         new = {}
