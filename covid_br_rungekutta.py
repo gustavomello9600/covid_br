@@ -73,12 +73,11 @@ while I[d + 1] > 1:
                       S[d] + I[d] + R[d] + M[d]))
     table.append([f[d] for f in (S, I, R, M)])
 
+    #Salvando número de recuperados no dia anterior
     R_ant = R[d]
 
     #Implementação do algoritmo Runge-Kutta
-    #Tem o efeito de atualizar o valor de cada f para o dia d
     for i in range(0, steps):
-        #try:
         t = 10000*i + d
         k = dict()
         #Determinação dos k1s
@@ -108,12 +107,11 @@ while I[d + 1] > 1:
         #Atualização dos valores das funções
         for f in (S, I, R, M):
             f[t + 10000] = f.pop(t) + (k.pop((f, 1)) + 2*k.pop((f, 2)) + 2*k.pop((f, 3)) + k.pop((f, 4)))/6
-        #except:
-         #   breakpoint()
 
     for f in (S, I, R, M):
         f[d + 1] = f.pop(t + 10000)
 
+    #condição de leitos limitados
     if I[d + 1] * taxa_de_hospitalização > total_de_leitos and leitos_limitados:  # Roda se leitos não forem suficientes
         R[d] = R_ant
         Recuperariam = R[d + 1] - R[d]  # Número de pessoas que se recuperariam se houvessem leitos suficientes
@@ -126,6 +124,7 @@ while I[d + 1] > 1:
             R[d + 1] = Recuperam + R[d]
             M[d + 1] += M_semleito
 
+    #condição de lockdown vertical no dia 1 de Abril
     if d == 18 and lockdown_vertical: kc = kc * 1.5
 
 print("{} pessoas morreram sem leito".format(total_de_mortos_sem_leito))
